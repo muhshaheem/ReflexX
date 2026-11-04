@@ -34,12 +34,9 @@ void setup() {
 
   lcd.begin(16, 2);
 
-  // A0-A5 are occupied by the LCD. Do not analogRead() an LCD signal as
-  // a random seed. If you have an unused analog input on your board,
-  // use it here instead. The fixed seed is functional but repeats patterns.
-  randomSeed(analogRead(A6)); // A6 exists on some Nano variants, not classic Uno.
-  // For a classic Uno, replace the line above with randomSeed(micros());
-  // micros() is not a source of true randomness, but avoids reading an LCD pin.
+  // A0-A5 are connected to the LCD, so none can be used as a
+  // floating analog seed input. Seed after the player presses START in
+  // startGame(), using elapsed time as a lightweight pseudorandom seed.
 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -123,6 +120,7 @@ void waitForStart() {
 }
 
 void startGame() {
+  randomSeed(micros()); // Timing-derived seed; not cryptographically random.
   score = 0;
   currentLED = -1;
   gameRunning = true;
