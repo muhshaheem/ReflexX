@@ -93,15 +93,17 @@ LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 7. Click **Upload** (→) to compile and transfer the sketch.
 8. Open **Tools → Serial Monitor**, set the baud rate to **9600**, and reset the board if needed.
 
-Do not select a board merely because its name looks similar. The board selection controls the compile target and upload protocol. If using a Nano or a clone, check its processor/bootloader option under **Tools → Processor** where that menu exists.
+Do not select a board merely because its name looks similar. The board selection controls the compile target and upload protocol. If using a classic Nano or a Nano clone, check its processor/bootloader option under **Tools → Processor** where that menu exists. For an older Nano that uses the old bootloader, select **ATmega328P (Old Bootloader)**. This is a Nano processor/bootloader selection, not an Arduino IDE version setting and not an option for the Uno. See the [Arduino Nano processor guidance](https://support.arduino.cc/hc/en-us/articles/4401874304274-Select-the-right-processor-for-Arduino-Nano).
 
 ### Arduino IDE version note
 
-This project does not require an old Arduino IDE version. Use a current stable Arduino IDE 2.x or a compatible Arduino IDE 1.8.x installation. If a particular older board package, USB driver, or computer setup works only with your previously installed IDE version, you may use that version, but IDE age is not a general bootloader requirement. Keep the selected board package and upload settings consistent.
+This project does not require an old IDE to work. Arduino IDE 2.x is the actively developed and recommended environment. If you specifically need the classic interface, **Arduino IDE 1.8.19 is the final legacy IDE 1.x release** and remains available from the [official Arduino software page](https://www.arduino.cc/en/software). It can compile and upload compatible AVR sketches, but it is not required for bootloading and it does not repair a missing or damaged bootloader.
+
+For this project on a classic **Arduino Uno R3**, select **Arduino Uno** in either IDE version. The Uno does not use the Nano's “Old Bootloader” processor menu option. If your hardware is actually a classic Arduino Nano or Nano clone, see the Nano-specific note in the bootloader section below.
 
 ## Bootloader: what it does and when to burn it
 
-The bootloader is a small program stored on the microcontroller that allows a compatible sketch to be uploaded over the serial/USB interface. A normal Arduino Uno that already has a working bootloader **does not need its bootloader burned before every sketch upload**. Uploading a sketch and burning/replacing a bootloader are different operations.
+The bootloader is a small program stored on the microcontroller that allows a compatible sketch to be uploaded over the serial/USB interface. A normal Arduino Uno that already has a working bootloader **does not need its bootloader burned before every sketch upload**. Uploading a sketch and burning/replacing a bootloader are different operations. Arduino boards normally ship with a bootloader already programmed. Follow the [official Arduino bootloader recovery guide](https://support.arduino.cc/hc/en-us/articles/4841602539164-Burn-the-bootloader-on-UNO-Mega-and-classic-Nano-using-another-Arduino) only when recovery or first-time programming is actually needed.
 
 For a normal upload, use **Upload** in Arduino IDE. Do not choose **Burn Bootloader** as a routine step before uploading code.
 
