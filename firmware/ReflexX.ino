@@ -1,4 +1,6 @@
-#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <hd44780.h>
+#include <hd44780ioClass/hd44780_I2Cexp.h>
 
 // ReflexX - Arduino LED Reaction Game
 // Target: Arduino Uno / ATmega328P with the wiring documented in README.md.
@@ -10,8 +12,9 @@ const byte ledPins[4] = {2, 3, 4, 5};
 // Buttons connect the input pin to GND when pressed.
 const byte buttonPins[4] = {6, 7, 8, 9};
 
-// LCD: RS, E, D4, D5, D6, D7 -> A0..A5
-LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
+// 16x2 LCD connected through an I2C backpack (PCF8574/MCP23008).
+// The library attempts to detect the backpack address and pin mapping.
+hd44780_I2Cexp lcd;
 
 unsigned int score = 0;
 int currentLED = -1;
@@ -32,11 +35,21 @@ void setup() {
     pinMode(buttonPins[i], INPUT_PULLUP);
   }
 
-  lcd.begin(16, 2);
+  // Initialize the I2C LCD backpack (auto-detect address/pin mapping).
+  // hd44780::begin() returns 0 on success.
+  const int lcdStatus = lcd.begin(16, 2);
+  if (lcdStatus != 0) {
+    Serial.print(F("LCD initialization failed. Status: "));
+    Serial.println(lcdStatus);
+    pinMode(LED_BUILTIN, OUTPUT);
+    while (true) {
+      digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+      delay(250);
+    }
+  }
 
-  // A0-A5 are connected to the LCD, so none can be used as a
-  // floating analog seed input. Seed after the player presses START in
-  // startGame(), using elapsed time as a lightweight pseudorandom seed.
+  // Arduino Uno I2C pins: SDA=A4, SCL=A5.
+  // Keep these pins dedicated to the LCD's I2C bus.
 
   lcd.clear();
   lcd.setCursor(0, 0);
