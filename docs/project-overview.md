@@ -17,9 +17,11 @@ The current version is a target-matching game. It is not a precision reaction-ti
 ## Electrical notes
 - Each LED requires its own current-limiting resistor.
 - Buttons use the ATmega328P internal pull-up resistors and should connect to GND when pressed.
-- LCD is wired in 4-bit mode to A0-A5.
+- The 16×2 LCD uses an I²C backpack connected to the Arduino Uno SDA (A4) and SCL (A5) pins.
 - Keep all module grounds common.
-- Do not use A0-A5 as random-seed analog inputs while they are connected to the LCD.
+- Install the hd44780 library by Bill Perry; the firmware uses its hd44780_I2Cexp interface to detect supported backpacks.
+- Keep the LCD and Arduino grounds common; use a backpack/LCD module compatible with the Arduino Uno's 5 V I²C logic.
+- Do not use A4/A5 for other functions while the LCD is connected to the I²C bus.
 
 ## Validation record
 The repository includes the supplied wiring assignment and a cleaned firmware structure. The author should record the actual Arduino board revision, LCD module, Arduino IDE version, compile result, and hardware test result here after bench verification.
