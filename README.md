@@ -73,7 +73,7 @@ LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 | LED+ / A | 5 V through suitable backlight resistor if the LCD module does not include one |
 | LED− / K | GND |
 
-**Important:** A0–A5 are all occupied by the LCD. Do not call `analogRead(A5)` for a random seed: A5 is being used as the LCD D7 signal. The firmware seeds the pseudorandom generator from an unconnected analog input only if one is available; the default wiring shown uses all six analog pins. For better variation, connect a genuinely unused analog input on a board with one available, or use a floating analog input only during startup. Never expect a cryptographically random sequence from Arduino's `random()`.
+**Important:** A0–A5 are all occupied by the LCD. Do not call `analogRead(A5)` for a random seed: A5 is being used as the LCD D7 signal. The firmware calls `randomSeed(micros())` when a new game starts, after the player has waited and pressed a start button. This is a lightweight timing-derived seed, not true or cryptographic randomness; repeated startup timing can produce similar sequences.
 
 ## Software requirements
 
