@@ -4,6 +4,14 @@ ReflexX is a small, interactive reaction game built around an Arduino Uno, four 
 
 > **Project status:** Initial open-source release. The firmware below follows the supplied circuit pin mapping. Hardware operation and timing have not been independently tested by the repository maintainer; verify the wiring and upload procedure on your exact board.
 
+## Demo video
+
+Watch the ReflexX project demonstration on YouTube:
+
+[▶ Watch the ReflexX demo](https://www.youtube.com/watch?v=VB640a8tsiU)
+
+[![ReflexX video thumbnail](https://img.youtube.com/vi/VB640a8tsiU/0.jpg)](https://www.youtube.com/watch?v=VB640a8tsiU)
+
 ## Features
 
 - Four randomly selected LED targets.
