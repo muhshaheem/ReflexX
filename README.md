@@ -21,8 +21,7 @@ ReflexX is a small, interactive reaction game built around an Arduino Uno, four 
 | Arduino Uno (ATmega328P) | 1 | Board assumed by the pin map in this project |
 | LEDs | 4 | Use a current-limiting resistor (typically 220–330 Ω) per LED |
 | Push buttons | 4 | Connected to ground when pressed; internal pull-ups are enabled |
-| 16×2 character LCD | 1 | HD44780-compatible, 4-bit mode |
-| 10 kΩ potentiometer | 1 | LCD contrast (VO) |
+| 16×2 character LCD with I²C backpack | 1 | HD44780-compatible LCD with a PCF8574- or MCP23008-based I²C backpack |
 | Breadboard and jumper wires | As needed | Common ground required |
 | USB cable | 1 | Programming and power |
 
@@ -50,35 +49,27 @@ Connect each LED in series with its own resistor. In the firmware, the selected 
 
 Each button connects its assigned input pin to GND when pressed. Firmware configures these pins as `INPUT_PULLUP`, so the unpressed state reads HIGH and the pressed state reads LOW. Do not connect these button pins to 5 V in this arrangement.
 
-### 16×2 LCD (4-bit mode)
+### 16×2 LCD with I²C backpack
 
-The sketch uses the Arduino `LiquidCrystal` library with this constructor:
+The LCD is connected through an I²C backpack (commonly based on a PCF8574 or MCP23008 expander), not through six separate Arduino LCD control/data pins. The firmware uses Bill Perry's `hd44780` library and its `hd44780_I2Cexp` interface. This interface can auto-detect supported backpack addresses and common pin mappings, rather than assuming a fixed address such as `0x27`.
 
-```cpp
-LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
-```
+| I²C backpack pin | Arduino Uno connection |
+|---|---|
+| GND | GND |
+| VCC | 5 V (for a 5 V backpack/LCD module) |
+| SDA | A4 / SDA |
+| SCL | A5 / SCL |
 
-| LCD pin/signal | Arduino connection |
-|---|---:|
-| RS | A0 |
-| E | A1 |
-| D4 | A2 |
-| D5 | A3 |
-| D6 | A4 |
-| D7 | A5 |
-| RW | GND |
-| VSS | GND |
-| VDD | 5 V |
-| VO | Wiper of 10 kΩ contrast potentiometer |
-| LED+ / A | 5 V through suitable backlight resistor if the LCD module does not include one |
-| LED− / K | GND |
+On an Arduino Uno R3, the separate SDA/SCL header pins (if present) are electrically the same I²C signals as A4/A5. Connect SDA to SDA and SCL to SCL. Keep the LCD and Arduino grounds common. The backpack normally provides the LCD contrast trimmer and backlight connections; adjust its small contrast potentiometer if the backlight is on but characters are not visible.
 
-**Important:** A0–A5 are all occupied by the LCD. Do not call `analogRead(A5)` for a random seed: A5 is being used as the LCD D7 signal. The firmware calls `randomSeed(micros())` when a new game starts, after the player has waited and pressed a start button. This is a lightweight timing-derived seed, not true or cryptographic randomness; repeated startup timing can produce similar sequences.
+**Important:** Do not connect the LCD's parallel RS, E, D4–D7 signals directly to Arduino pins in this build. They are handled by the I²C backpack. A4 and A5 are reserved for I²C communication while the display is connected.
 
+The firmware calls `randomSeed(micros())` when a new game starts, after the player has waited and pressed a start button. This is a lightweight timing-derived seed, not true or cryptographic randomness; repeated startup timing can produce similar sequences.
 ## Software requirements
 
 - Arduino Uno / ATmega328P-compatible board.
-- Arduino IDE. The sketch uses the built-in `LiquidCrystal` library and Arduino core functions; no extra library installation is required.
+- Arduino IDE.
+- Install **hd44780 by Bill Perry** through **Sketch → Include Library → Manage Libraries** (Library Manager). The firmware needs the `hd44780` and `hd44780_I2Cexp` headers.
 - USB data cable (some cables are charge-only).
 - Correct USB-serial driver for clone boards, if applicable (for example CH340/CH341).
 
@@ -142,9 +133,10 @@ This is a recovery/setup procedure and requires a second working Arduino Uno (th
 | `avrdude: ser_open(): can't open device` | Close Serial Monitor and other serial applications; check port selection and OS permissions. |
 | `stk500_recv()` / programmer not responding | Check board and processor selection, selected port, cable, reset/bootloader health, and any shields/wiring on serial pins D0/D1. |
 | Upload starts but fails | Disconnect external circuits temporarily, especially anything connected to D0/RX and D1/TX; try manual reset near upload start. |
-| Compile error for `LiquidCrystal.h` | Select a standard Arduino AVR board package; `LiquidCrystal` is normally included with the Arduino AVR core. |
-| LCD backlight works but no text | Adjust the contrast potentiometer; verify RS/E/D4–D7 wiring and RW-to-GND. |
-| Random LED behavior seems repetitive | Arduino `random()` is pseudorandom. Seed from an unused, electrically noisy analog input at startup; do not read from an LCD-connected pin. |
+| Compile error for `hd44780.h` or `hd44780ioClass/hd44780_I2Cexp.h` | Install **hd44780 by Bill Perry** through Arduino IDE Library Manager, then restart the IDE if necessary. |
+| LCD backlight works but no text | Check SDA/SCL are not swapped, confirm 5 V and GND, adjust the backpack contrast trimmer, and run the library's `I2CexpDiag` example. |
+| LCD initialization fails | Run the library's **I2CexpDiag** example (under the hd44780 I²C-expander examples) to test the I²C bus and backpack. |
+| Random LED behavior seems repetitive | Arduino `random()` is pseudorandom. The firmware seeds it from elapsed startup timing; it is not a true random source. |
 
 ## How to play
 
